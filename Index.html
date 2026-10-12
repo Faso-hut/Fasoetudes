@@ -1,0 +1,478 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#087443">
+<title>FasoÉtudes 🇧🇫</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<style>
+:root {
+  --vert:#087443;
+  --fond:#f3f7f4;
+  --texte:#193327;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:var(--fond);
+  color:var(--texte);
+}
+header {
+  background:var(--vert);
+  color:white;
+  padding:20px 16px;
+}
+header h1 { margin:0 0 6px; }
+header p { margin:0; font-size:14px; }
+main { padding:15px; padding-bottom:90px; }
+nav {
+  position:fixed;
+  bottom:0; left:0; right:0;
+  display:flex;
+  justify-content:space-around;
+  background:white;
+  border-top:1px solid #ddd;
+  padding:9px 2px;
+  z-index:5;
+}
+nav button {
+  border:0;
+  background:none;
+  color:#456052;
+  font-size:11px;
+  padding:5px 2px;
+}
+nav button span { display:block; font-size:21px; margin-bottom:3px; }
+nav button.active { color:var(--vert); font-weight:bold; }
+.page { display:none; }
+.page.active { display:block; }
+.card {
+  background:white;
+  border-radius:14px;
+  padding:15px;
+  margin-bottom:13px;
+  box-shadow:0 2px 8px #183c2010;
+}
+h2 { font-size:21px; margin:5px 0 15px; }
+h3 { margin:5px 0 10px; }
+p { line-height:1.5; }
+button, input, textarea, select {
+  font:inherit;
+}
+.action {
+  border:0;
+  border-radius:9px;
+  padding:11px 14px;
+  background:var(--vert);
+  color:white;
+  cursor:pointer;
+}
+.secondary { background:#e4f2e9; color:var(--vert); }
+input, textarea, select {
+  width:100%;
+  padding:11px;
+  border:1px solid #d4dfd7;
+  border-radius:9px;
+  margin:5px 0 12px;
+  background:white;
+  color:var(--texte);
+}
+textarea { min-height:90px; resize:vertical; }
+.small { color:#617268; font-size:13px; }
+.progress {
+  height:9px;
+  background:#e0e9e2;
+  border-radius:9px;
+  overflow:hidden;
+}
+.progress div { height:100%; background:var(--vert); }
+.option {
+  display:block;
+  width:100%;
+  text-align:left;
+  background:white;
+  border:1px solid #d4dfd7;
+  border-radius:9px;
+  padding:12px;
+  margin:8px 0;
+  color:var(--texte);
+}
+.option:disabled { opacity:1; }
+.notice {
+  background:#e7f4eb;
+  padding:12px;
+  border-radius:9px;
+  margin:10px 0;
+}
+</style>
+</head>
+<script>
+if ("serviceWorker" in navigator &&
+    (location.protocol === "https:" ||
+     location.hostname === "localhost")) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js")
+      .catch(error => console.error(
+        "Erreur de mise en cache :", error
+      ));
+  });
+}
+</script>
+<body>
+<header>
+  <h1>🇧🇫 FasoÉtudes</h1>
+  <p>Apprendre aujourd'hui, réussir demain !</p>
+</header>
+
+<main>
+<section id="accueil" class="page active">
+  <div class="card">
+    <h2>Bonjour, étudiant ! 👋</h2>
+    <p>Bienvenue dans ton espace de travail universitaire.</p>
+    <p class="small">Université Nazi Boni · Biologie générale / SVT</p>
+    <div class="notice">
+      <strong>Mon objectif</strong>
+      <p id="objectif">Apprendre un peu chaque jour.</p>
+    </div>
+    <button class="action" onclick="ouvrir('cours')">Réviser mes cours</button>
+  </div>
+  <div class="card">
+    <h3>📚 Mes révisions</h3>
+    <p id="compteur">0 exercice terminé</p>
+    <div class="progress"><div id="barre" style="width:0%"></div></div>
+    <p id="moyenne">Aucune note pour le moment.</p>
+  </div>
+  <div class="card">
+    <h3>📅 Prochaine tâche</h3>
+    <div id="prochaine">Aucune tâche enregistrée.</div>
+    <button class="action secondary" onclick="ouvrir('planning')">Voir mon planning</button>
+  </div>
+</section>
+
+<section id="cours" class="page">
+  <h2>📚 Mes cours</h2>
+  <div class="card">
+    <h3>Biologie générale</h3>
+    <p>Cellule, tissus, organismes vivants et fonctions biologiques.</p>
+    <button class="action" onclick="fiche('bio')">Fiche de révision</button>
+  </div>
+  <div class="card">
+    <h3>Sciences de la vie et de la Terre</h3>
+    <p>Géologie, Terre, environnement et phénomènes naturels.</p>
+    <button class="action" onclick="fiche('svt')">Fiche de révision</button>
+  </div>
+  <div class="card">
+    <h3>Mes documents PDF</h3>
+    <p class="small">Sélectionne un support de cours pour extraire son texte et obtenir une fiche de révision simplifiée.</p>
+    <input type="file" id="pdf" accept=".pdf,application/pdf">
+    <button class="action" onclick="lirePDF()">Importer et résumer</button>
+    <p id="pdfEtat" class="small"></p>
+    <div id="resumePDF"></div>
+  </div>
+  <div class="card">
+    <h3>Ma fiche de cours</h3>
+    <div id="ficheCours">Choisis une fiche ci-dessus.</div>
+  </div>
+</section>
+
+<section id="exercices" class="page">
+  <h2>✍️ Exercices et QCM</h2>
+  <div class="card">
+    <p class="small">Biologie générale · Niveau débutant</p>
+    <h3 id="question"></h3>
+    <div id="options"></div>
+    <p id="correction" aria-live="polite"></p>
+    <button class="action" id="suivant" onclick="suivant()" hidden>Question suivante</button>
+  </div>
+  <div class="card">
+    <h3>Résultats</h3>
+    <p id="score">0 bonne réponse sur 0</p>
+    <button class="action secondary" onclick="recommencer()">Recommencer le QCM</button>
+  </div>
+</section>
+
+<section id="assistant" class="page">
+  <h2>🤖 Assistant d'étude</h2>
+  <div class="card">
+    <p>Pose une question sur tes cours. Cette première version fonctionne hors ligne avec des explications simples prédéfinies.</p>
+    <label for="questionIA">Ta question</label>
+    <textarea id="questionIA" placeholder="Exemple : Qu'est-ce qu'une cellule ?"></textarea>
+    <button class="action" onclick="demander()">Obtenir une explication</button>
+    <div id="reponseIA" aria-live="polite"></div>
+    <p class="small">L'IA générative complète sera ajoutée dans une prochaine étape avec un service sécurisé et une connexion Internet.</p>
+  </div>
+</section>
+
+<section id="planning" class="page">
+  <h2>📅 Mon planning</h2>
+  <div class="card">
+    <label for="tache">Activité à réaliser</label>
+    <input id="tache" placeholder="Ex. Réviser la cellule">
+    <label for="dateTache">Date</label>
+    <input id="dateTache" type="date">
+    <label for="heureTache">Heure</label>
+    <input id="heureTache" type="time">
+    <button class="action" onclick="ajouterTache()">Ajouter au planning</button>
+  </div>
+  <div id="listeTaches"></div>
+  <p class="small">Les tâches sont conservées sur cet appareil. Les notifications automatiques seront ajoutées plus tard.</p>
+</section>
+
+<section id="resultats" class="page">
+  <h2>📊 Mes résultats</h2>
+  <div class="card">
+    <h3>Mes notes</h3>
+    <label for="matiere">Matière</label>
+    <input id="matiere" placeholder="Ex. Biologie générale">
+    <label for="note">Note obtenue sur 20</label>
+    <input id="note" type="number" min="0" max="20" step="0.25" placeholder="Ex. 14">
+    <button class="action" onclick="ajouterNote()">Enregistrer ma note</button>
+  </div>
+  <div class="card">
+    <h3>Mon historique</h3>
+    <div id="historique"></div>
+    <p id="bilan"></p>
+  </div>
+</section>
+</main>
+
+<nav>
+  <button class="active" data-page="accueil" onclick="ouvrir('accueil')"><span>🏠</span>Accueil</button>
+  <button data-page="cours" onclick="ouvrir('cours')"><span>📚</span>Cours</button>
+  <button data-page="exercices" onclick="ouvrir('exercices')"><span>✍️</span>QCM</button>
+  <button data-page="assistant" onclick="ouvrir('assistant')"><span>🤖</span>Assistant</button>
+  <button data-page="planning" onclick="ouvrir('planning')"><span>📅</span>Planning</button>
+  <button data-page="resultats" onclick="ouvrir('resultats')"><span>📊</span>Notes</button>
+</nav>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function charger(cle, defaut) {
+  try {
+    const valeur = localStorage.getItem("fasoEtudes_" + cle);
+    return valeur === null ? defaut : JSON.parse(valeur);
+  } catch(e) { return defaut; }
+}
+function sauver(cle, valeur) {
+  try {
+    localStorage.setItem("fasoEtudes_" + cle, JSON.stringify(valeur));
+  } catch(e) {
+    alert("Stockage indisponible. Vérifie les paramètres de ton navigateur.");
+  }
+}
+
+function ouvrir(id) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+  $(id).classList.add("active");
+  document.querySelector('[data-page="' + id + '"]').classList.add("active");
+  window.scrollTo(0,0);
+}
+
+const fiches = {
+  bio: `<h3>La cellule</h3>
+  <p>La cellule est l'unité structurale et fonctionnelle fondamentale des êtres vivants.</p>
+  <p><strong>Membrane plasmique :</strong> délimite la cellule et contrôle les échanges.</p>
+  <p><strong>Cytoplasme :</strong> milieu où se trouvent les organites.</p>
+  <p><strong>Noyau :</strong> contient l'essentiel de l'information génétique des cellules eucaryotes.</p>
+  <p><strong>À retenir :</strong> les cellules procaryotes n'ont pas de noyau délimité par une membrane.</p>`,
+  svt: `<h3>La géodynamique interne</h3>
+  <p>Elle étudie les processus internes de la Terre et leurs effets.</p>
+  <p><strong>Tectonique des plaques :</strong> les plaques lithosphériques se déplacent.</p>
+  <p><strong>Séismes :</strong> vibrations liées à une libération brusque d'énergie dans la Terre.</p>
+  <p><strong>Volcanisme :</strong> remontée et émission de magma ou de produits volcaniques.</p>
+  <p><strong>À retenir :</strong> la chaleur interne contribue aux mouvements et transformations de la Terre.</p>`
+};
+function fiche(type) { $("ficheCours").innerHTML = fiches[type]; }
+
+const questions = [
+ {q:"Quelle est l'unité fondamentale du vivant ?",o:["La cellule","Le minéral","L'organe"],r:0,e:"La cellule est l'unité fondamentale structurale et fonctionnelle du vivant."},
+ {q:"Quel organite contient l'essentiel de l'ADN dans une cellule eucaryote ?",o:["Le noyau","La membrane","Le ribosome"],r:0,e:"Le noyau contient l'essentiel de l'information génétique d'une cellule eucaryote."},
+ {q:"Quel instrument permet d'observer de nombreuses cellules ?",o:["Le microscope","Le baromètre","La boussole"],r:0,e:"Le microscope permet d'observer des structures trop petites pour l'œil nu."},
+ {q:"Comment appelle-t-on l'étude des êtres vivants ?",o:["La biologie","La géologie","L'astronomie"],r:0,e:"La biologie est la science qui étudie les êtres vivants."},
+ {q:"Quelle enveloppe contrôle les échanges de la cellule avec son milieu ?",o:["La membrane plasmique","Le noyau seul","Le chromosome"],r:0,e:"La membrane plasmique participe au contrôle des échanges entre la cellule et son environnement."}
+];
+let qi=0, bonnes=0, repondu=false;
+let totalQCM=charger("qcmTotal",0);
+let totalBonnes=charger("qcmBonnes",0);
+
+function afficherQuestion() {
+  repondu=false;
+  $("question").textContent=questions[qi].q;
+  $("options").innerHTML="";
+  $("correction").textContent="";
+  $("suivant").hidden=true;
+  questions[qi].o.forEach((o,i)=>{
+    const b=document.createElement("button");
+    b.className="option";
+    b.textContent=o;
+    b.onclick=()=>repondre(i);
+    $("options").appendChild(b);
+  });
+}
+function repondre(i) {
+  if(repondu)return;
+  repondu=true;
+  const q=questions[qi];
+  const boutons=$("options").querySelectorAll("button");
+  boutons.forEach(b=>b.disabled=true);
+  if(i===q.r) {
+    bonnes++;
+    totalBonnes++;
+    $("correction").textContent="✅ Bonne réponse ! "+q.e;
+  } else {
+    $("correction").textContent="❌ Bonne réponse : "+q.o[q.r]+". "+q.e;
+  }
+  totalQCM++;
+  sauver("qcmTotal",totalQCM);
+  sauver("qcmBonnes",totalBonnes);
+  boutons[q.r].style.borderColor="#087443";
+  boutons[q.r].style.background="#e4f2e9";
+  $("suivant").hidden=false;
+  actualiser();
+}
+function suivant() {
+  qi=(qi+1)%questions.length;
+  if(qi===0) bonnes=0;
+  afficherQuestion();
+}
+function recommencer() { qi=0; bonnes=0; afficherQuestion(); }
+$("score").textContent="0 bonne réponse sur 0";
+
+function actualiser() {
+  $("score").textContent=bonnes+" bonne(s) réponse(s) sur "+(qi+1);
+  $("compteur").textContent=totalQCM+" réponse(s) enregistrée(s)";
+  $("barre").style.width=(totalQCM?Math.round(totalBonnes/totalQCM*100):0)+"%";
+  $("moyenne").textContent=totalQCM?"Réussite aux QCM : "+Math.round(totalBonnes/totalQCM*100)+" %":"Aucune note pour le moment.";
+}
+function demander() {
+  const q=$("questionIA").value.trim().toLowerCase();
+  let rep="Je n'ai pas encore de réponse hors ligne pour cette question. Essaie avec les mots « cellule », « biologie », « géodynamique » ou « séisme ».";
+  if(!q) { $("reponseIA").textContent="Écris d'abord une question."; return; }
+  if(q.includes("cellule")||q.includes("membrane")||q.includes("noyau"))
+    rep="La cellule est l'unité fondamentale du vivant. Elle comprend une membrane plasmique, du cytoplasme et, chez les eucaryotes, un noyau délimité par une membrane. La membrane régule les échanges avec le milieu.";
+  else if(q.includes("géodynamique")||q.includes("séisme")||q.includes("volcan"))
+    rep="La géodynamique interne étudie les processus qui prennent naissance à l'intérieur de la Terre. Ils comprennent notamment les mouvements des plaques, les séismes et le volcanisme.";
+  else if(q.includes("biologie"))
+    rep="La biologie étudie les êtres vivants : leur structure, leur fonctionnement, leur développement, leur évolution et leurs relations avec l'environnement.";
+  $("reponseIA").innerHTML="";
+  const p=document.createElement("p");
+  p.className="notice";
+  p.textContent=rep;
+  $("reponseIA").appendChild(p);
+}
+
+let taches=charger("taches",[]);
+function afficherTaches() {
+  $("listeTaches").innerHTML="";
+  taches.forEach((t,i)=>{
+    const div=document.createElement("div");
+    div.className="card";
+    const p=document.createElement("p");
+    p.textContent=(t.faite?"✅ ":"📌 ")+t.nom+" — "+t.date+" "+t.heure;
+    const b=document.createElement("button");
+    b.className="action secondary";
+    b.textContent=t.faite?"À refaire":"Terminé";
+    b.onclick=()=>{taches[i].faite=!taches[i].faite;sauver("taches",taches);afficherTaches();};
+    const sup=document.createElement("button");
+    sup.className="action";
+    sup.style.marginLeft="6px";
+    sup.textContent="Supprimer";
+    sup.onclick=()=>{taches.splice(i,1);sauver("taches",taches);afficherTaches();};
+    div.append(p,b,sup);
+    $("listeTaches").appendChild(div);
+  });
+  const prochaine=taches.filter(t=>!t.faite).sort((a,b)=>(a.date+a.heure).localeCompare(b.date+b.heure))[0];
+  $("prochaine").textContent=prochaine?prochaine.nom+" — "+prochaine.date+" "+prochaine.heure:"Aucune tâche enregistrée.";
+}
+function ajouterTache() {
+  const nom=$("tache").value.trim(), date=$("dateTache").value, heure=$("heureTache").value||"";
+  if(!nom||!date){alert("Indique le nom de la tâche et la date.");return;}
+  taches.push({nom,date,heure,faite:false});
+  sauver("taches",taches);
+  $("tache").value="";
+  afficherTaches();
+}
+
+let notes=charger("notes",[]);
+function afficherNotes() {
+  $("historique").innerHTML="";
+  notes.forEach((n,i)=>{
+    const div=document.createElement("div");
+    div.className="notice";
+    const p=document.createElement("p");
+    p.textContent=n.matiere+" : "+n.note+"/20";
+    const b=document.createElement("button");
+    b.className="action secondary";
+    b.textContent="Supprimer";
+    b.onclick=()=>{notes.splice(i,1);sauver("notes",notes);afficherNotes();};
+    div.append(p,b);
+    $("historique").appendChild(div);
+  });
+  const moyenne=notes.length?notes.reduce((s,n)=>s+n.note,0)/notes.length:0;
+  $("bilan").textContent=notes.length?"Moyenne simple : "+moyenne.toFixed(2)+"/20 ("+notes.length+" note(s)).":"Aucune note enregistrée.";
+}
+function ajouterNote() {
+  const matiere=$("matiere").value.trim(), note=Number($("note").value);
+  if(!matiere||$("note").value===""||!Number.isFinite(note)||note<0||note>20){
+    alert("Entre une matière et une note comprise entre 0 et 20.");return;
+  }
+  notes.push({matiere,note});
+  sauver("notes",notes);
+  $("matiere").value="";
+  $("note").value="";
+  afficherNotes();
+}
+
+async function lirePDF() {
+  const f=$("pdf").files[0];
+  if(!f){$("pdfEtat").textContent="Choisis d'abord un fichier PDF.";return;}
+  if(f.size>15*1024*1024){$("pdfEtat").textContent="Fichier trop volumineux (maximum 15 Mo).";return;}
+  $("pdfEtat").textContent="Chargement du lecteur PDF…";
+  try {
+    if(!window.pdfjsLib) {
+      await new Promise((resolve,reject)=>{
+        const s=document.createElement("script");
+        s.src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+        s.onload=resolve;s.onerror=reject;document.head.appendChild(s);
+      });
+    }
+    pdfjsLib.GlobalWorkerOptions.workerSrc=
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    const doc=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;
+    let texte="";
+    for(let i=1;i<=Math.min(doc.numPages,30);i++){
+      const page=await doc.getPage(i);
+      const contenu=await page.getTextContent();
+      texte+=contenu.items.map(x=>x.str).join(" ")+"\n";
+    }
+    if(!texte.trim()) throw new Error("Aucun texte détecté. Le PDF est peut-être un scan.");
+    const lignes=texte.split(/\n|(?<=[.!?])\s+/).map(x=>x.trim()).filter(x=>x.length>30);
+    const resume=lignes.slice(0,12).join("\n\n");
+    $("resumePDF").innerHTML="";
+    const titre=document.createElement("h3");
+    titre.textContent="Texte extrait — premières idées";
+    const contenu=document.createElement("pre");
+    contenu.style.whiteSpace="pre-wrap";
+    contenu.style.fontFamily="Arial,sans-serif";
+    contenu.textContent=resume;
+    $("resumePDF").append(titre,contenu);
+    $("pdfEtat").textContent="Extraction terminée ("+doc.numPages+" pages au total). Jusqu'à 30 pages ont été lues.";
+  } catch(e) {
+    $("pdfEtat").textContent="Impossible de lire ce PDF. Vérifie Internet et réessaie. Les PDF scannés peuvent nécessiter une reconnaissance de texte.";
+  }
+}
+
+afficherQuestion();
+afficherTaches();
+afficherNotes();
+actualiser();
+</script>
+</body>
+  </html>
+    
