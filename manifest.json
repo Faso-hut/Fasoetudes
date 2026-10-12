@@ -1,0 +1,42 @@
+
+{
+  "id": "./",
+  "name": "FasoÉtudes 🇧🇫",
+  "short_name": "FasoÉtudes",
+  "description": "Application universitaire pour apprendre la biologie et les SVT.",
+  "lang": "fr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3f7f4",
+  "theme_color": "#087443",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
+  
+{
+  "id": "./",
+  "name": "FasoÉtudes 🇧🇫",
+  "short_name": "FasoÉtudes",
+  "description": "Application universitaire pour apprendre la biologie et les SVT.",
+  "lang": "fr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3f7f4",
+  "theme_color": "#087443",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purp
+      
